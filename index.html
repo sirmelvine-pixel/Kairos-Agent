@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="theme-color" content="#080C14"/>
+  <meta name="description" content="Kairos — 刻 · Temporal Intelligence Agent"/>
+  <title>Kairos 刻 · AI Agent</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ─── CSS Variables ─────────────────────────────────────────────── */
+    :root {
+      --bg:       #080C14;
+      --bg2:      #0C1020;
+      --bg3:      #101525;
+      --bg4:      #141A2C;
+      --teal:     #00C9A7;
+      --teal2:    #00FFCE;
+      --teal3:    #7FFFD4;
+      --teal-dim: rgba(0,201,167,.18);
+      --teal-bdr: rgba(0,201,167,.22);
+      --blue:     #0EA5E9;
+      --amber:    #F59E0B;
+      --red:      #EF4444;
+      --green:    #10B981;
+      --text:     #B8C8D8;
+      --text2:    #6A8090;
+      --text3:    #3A5060;
+      --gold:     #C9973B;
+    }
+
+    /* ─── Reset ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--teal-bdr); border-radius: 99px; }
+    ::placeholder { color: var(--text3) !important; }
+
+    /* ─── Animations ────────────────────────────────────────────────── */
+    @keyframes spin    { to { transform: rotate(360deg); } }
+    @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.25} }
+    @keyframes fadeIn  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+    @keyframes shimmer { 0%{left:-100%} 60%,100%{left:150%} }
+    @keyframes glow    { 0%,100%{box-shadow:0 0 8px rgba(0,201,167,.3)} 50%{box-shadow:0 0 20px rgba(0,201,167,.7)} }
+
+    /* ─── Sidebar ───────────────────────────────────────────────────── */
+    #sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: linear-gradient(180deg, #090D18 0%, #0B1020 100%);
+      border-right: 1px solid var(--teal-bdr);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 12px;
+      transition: width .3s ease;
+      overflow: hidden;
+    }
+    #sidebar.collapsed { width: 54px; }
+
+    .logo-wrap {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 24px; cursor: pointer; flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+      background: linear-gradient(135deg, #00C9A7, #006655);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Shippori Mincho', serif; font-size: 18px; font-weight: 800;
+      color: #080C14; box-shadow: 0 4px 16px rgba(0,201,167,.4);
+      border: 1px solid var(--teal);
+    }
+    .logo-text-wrap .logo-name {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 16px; color: var(--teal2); letter-spacing: .08em;
+    }
+    .logo-text-wrap .logo-sub {
+      font-size: 9px; color: var(--teal-dim); letter-spacing: .14em;
+      color: rgba(0,201,167,.35); margin-top: 1px;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--teal-bdr), transparent);
+      margin: 0 0 14px;
+    }
+
+    /* Nav items */
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px; cursor: pointer;
+      border: 1px solid transparent; transition: all .2s;
+      width: 100%; background: none; font-family: 'Rajdhani', sans-serif;
+      white-space: nowrap; margin-bottom: 2px;
+    }
+    .nav-item:hover { background: rgba(0,201,167,.06); }
+    .nav-item.active {
+      background: rgba(0,201,167,.12);
+      border-color: var(--teal-bdr);
+    }
+    .nav-icon { font-size: 14px; color: rgba(0,201,167,.3); flex-shrink: 0; width: 18px; text-align: center; }
+    .nav-item.active .nav-icon { color: var(--teal2); }
+    .nav-label { font-size: 12px; font-weight: 600; letter-spacing: .07em; color: rgba(184,200,216,.28); }
+    .nav-item.active .nav-label { color: var(--teal3); }
+    .nav-badge {
+      margin-left: auto; background: var(--teal); color: #080C14;
+      font-size: 9px; font-weight: 700; border-radius: 99px; padding: 1px 6px;
+    }
+
+    /* Tools section */
+    .tools-label {
+      font-size: 9px; font-weight: 700; letter-spacing: .2em;
+      text-transform: uppercase; color: rgba(0,201,167,.28);
+      margin: 0 0 8px 2px;
+    }
+    .tool-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; border-radius: 7px; cursor: pointer;
+      border: 1px solid transparent; transition: all .2s; margin-bottom: 3px;
+    }
+    .tool-row.on { background: rgba(0,201,167,.07); border-color: rgba(0,201,167,.15); }
+    .tool-icon  { font-size: 12px; color: rgba(0,201,167,.25); flex-shrink: 0; }
+    .tool-row.on .tool-icon { color: var(--teal); }
+    .tool-name  { font-size: 10px; font-weight: 500; flex: 1; color: rgba(184,200,216,.22); }
+    .tool-row.on .tool-name { color: var(--text); }
+    .tool-dot   { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.07); }
+    .tool-row.on .tool-dot  { background: var(--green); }
+
+    /* Mission counter */
+    .mission-counter {
+      background: rgba(0,201,167,.07); border: 1px solid var(--teal-bdr);
+      border-radius: 8px; padding: 10px; text-align: center;
+    }
+    .mission-num  { font-size: 22px; font-weight: 700; color: var(--teal2); line-height: 1; }
+    .mission-lbl  { font-size: 9px; color: rgba(0,201,167,.35); letter-spacing: .12em; text-transform: uppercase; margin-top: 3px; }
+
+    /* ─── Main area ─────────────────────────────────────────────────── */
+    #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Topbar */
+    #topbar {
+      background: var(--bg2); border-bottom: 1px solid var(--teal-bdr);
+      padding: 10px 22px; display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+    }
+    .topbar-title { font-weight: 700; font-size: 14px; color: var(--teal3); letter-spacing: .07em; }
+    .topbar-date  { font-size: 10px; color: var(--text3); letter-spacing: .04em; margin-top: 1px; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .avatar {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--teal), #006655);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Shippori Mincho', serif; font-size: 12px; font-weight: 800;
+      color: #080C14; border: 1px solid var(--teal);
+    }
+
+    /* Btn styles */
+    .btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      letter-spacing: .1em; cursor: pointer; border-radius: 7px;
+      transition: all .2s; white-space: nowrap;
+    }
+    .btn-sm  { font-size: 10px; padding: 5px 12px; }
+    .btn-md  { font-size: 11px; padding: 8px 18px; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal), #006655);
+      color: #080C14; border: 1px solid var(--teal);
+      box-shadow: 0 4px 14px rgba(0,201,167,.3);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 20px rgba(0,201,167,.5); filter: brightness(1.1); }
+    .btn-outline {
+      background: transparent; color: var(--teal2);
+      border: 1px solid var(--teal-bdr);
+    }
+    .btn-outline:hover { background: var(--teal-dim); border-color: var(--teal); }
+    .btn:disabled { opacity: .35; cursor: not-allowed; filter: none; box-shadow: none; }
+
+    /* ─── Pages ─────────────────────────────────────────────────────── */
+    .page { display: none; flex: 1; overflow: hidden; animation: fadeIn .3s ease; }
+    .page.active { display: flex; flex-direction: column; }
+
+    /* Scrollable content area */
+    .scroll-area { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+    /* ─── DASHBOARD ─────────────────────────────────────────────────── */
+
+    /* Aurora hero */
+    .hero {
+      position: relative; overflow: hidden;
+      min-height: 185px; border-bottom: 1px solid var(--teal-bdr);
+      flex-shrink: 0;
+    }
+    .hero-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .hero-content { position: relative; z-index: 2; padding: 24px 28px 20px; }
+    .hero-eyebrow {
+      font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+      color: rgba(0,255,206,.4); margin-bottom: 5px;
+    }
+    .hero-title {
+      font-family: 'Shippori Mincho', serif; font-size: 26px; font-weight: 700;
+      color: var(--teal2); text-shadow: 0 2px 20px rgba(0,201,167,.5);
+      margin-bottom: 7px; line-height: 1.2;
+    }
+    .hero-sub {
+      font-size: 12px; color: rgba(0,255,206,.45); line-height: 1.65;
+      font-style: italic; max-width: 420px;
+    }
+    .hero-btns { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+
+    /* Stats row */
+    .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+    .stat-card {
+      background: linear-gradient(145deg,#0F1523,#0B1020);
+      border: 1px solid var(--teal-bdr); border-radius: 11px;
+      padding: 13px 15px; position: relative; overflow: hidden; cursor: pointer;
+      transition: border-color .2s;
+    }
+    .stat-card::before {
+      content:''; position: absolute; top:0;left:0;right:0;height:2px;
+    }
+    .stat-card:hover { border-color: rgba(0,201,167,.45); }
+    .stat-icon  { font-size: 15px; margin-bottom: 5px; }
+    .stat-val   { font-size: 22px; font-weight: 700; line-height: 1; }
+    .stat-lbl   { font-size: 10px; color: var(--text3); letter-spacing: .07em; text-transform: uppercase; margin-top: 2px; }
+
+    /* GCard */
+    .gcard {
+      background: linear-gradient(145deg,#0F1523,#0B1020);
+      border: 1px solid var(--teal-bdr); border-radius: 13px;
+      padding: 17px 19px; position: relative; overflow: hidden;
+    }
+    .gcard::before {
+      content:''; position: absolute; top:0;left:0;right:0;height:2px;
+      background: linear-gradient(90deg, var(--teal), transparent);
+    }
+    .gcard-corner {
+      position: absolute; top:0;right:0;width:48px;height:48px;overflow:hidden;opacity:.07;
+    }
+    .gcard-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px;
+    }
+    .gcard-title-row { display: flex; align-items: center; gap: 8px; }
+    .gcard-icon { font-size: 13px; color: var(--teal); }
+    .gcard-title { font-size: 11px; font-weight: 700; color: #8AAABB; letter-spacing: .1em; text-transform: uppercase; }
+    .refresh-btn {
+      background: none; border: none; cursor: pointer; color: var(--teal);
+      font-size: 15px; padding: 0; transition: transform .5s; line-height: 1;
+    }
+    .refresh-btn.spinning { animation: spin 1s linear infinite; opacity: .4; }
+
+    /* Priority email row */
+    .priority-email {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 9px 11px; border-radius: 8px; cursor: pointer;
+      background: rgba(239,68,68,.05); border: 1px solid rgba(239,68,68,.13);
+      transition: all .2s; margin-bottom: 7px;
+    }
+    .priority-email:hover { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); }
+    .priority-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); flex-shrink:0; margin-top:4px; box-shadow: 0 0 6px rgba(239,68,68,.6); }
+    .email-from   { font-size: 11px; font-weight: 700; color: var(--teal2); }
+    .email-subj   { font-size: 12px; color: var(--text); font-family: Georgia, serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px; }
+    .email-snip   { font-size: 11px; color: var(--text3); font-family: Georgia, serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px; }
+    .email-time   { font-size: 10px; color: var(--text3); flex-shrink: 0; }
+
+    /* Motivation / Bible cards */
+    .md-content { font-size: 13px; color: var(--text); line-height: 1.8; }
+    .md-content strong { color: var(--teal3); }
+    .md-content em { color: var(--teal2); }
+    .md-content .md-h2 { font-size: 14px; font-weight: 700; color: var(--teal2); margin: 10px 0 4px; }
+    .md-content .md-bullet { display: flex; gap: 8px; margin-bottom: 4px; }
+    .md-content .md-dot { color: var(--text3); }
+    .left-bar { border-left: 2px solid; padding-left: 12px; }
+
+    /* Quick search */
+    .quick-search-item {
+      font-size: 11px; color: var(--text3); cursor: pointer;
+      padding: 5px 8px; border-radius: 6px; border: 1px solid transparent;
+      transition: all .2s; font-family: Georgia, serif;
+    }
+    .quick-search-item:hover { background: rgba(0,201,167,.08); border-color: rgba(0,201,167,.2); color: var(--teal2); }
+
+    /* ─── MAIL ──────────────────────────────────────────────────────── */
+    #page-mail { flex-direction: row; }
+    .mail-list {
+      width: 300px; flex-shrink: 0; border-right: 1px solid var(--teal-bdr);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .mail-filters {
+      padding: 11px 14px; border-bottom: 1px solid var(--teal-bdr);
+      display: flex; gap: 5px; flex-shrink: 0; flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: rgba(0,201,167,.06); color: var(--teal);
+      border: 1px solid var(--teal-bdr); border-radius: 6px;
+      padding: 4px 10px; cursor: pointer; font-size: 9px; font-weight: 700;
+      font-family: 'Rajdhani', sans-serif; letter-spacing: .1em; text-transform: uppercase; transition: all .2s;
+    }
+    .filter-btn.active { background: linear-gradient(135deg, var(--teal), #006655); color: #080C14; border-color: transparent; }
+    .email-rows { flex: 1; overflow-y: auto; }
+    .email-row {
+      padding: 10px 14px; border-bottom: 1px solid rgba(0,201,167,.05);
+      cursor: pointer; transition: background .2s;
+      border-left: 3px solid transparent;
+    }
+    .email-row:hover { background: rgba(0,201,167,.06); }
+    .email-row.selected { background: rgba(0,201,167,.1); border-left-color: var(--teal); }
+    .email-row.priority { border-left-color: var(--red); }
+    .email-row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+    .email-row-from { font-size: 11px; font-weight: 700; color: var(--teal3); display: flex; align-items: center; gap: 5px; }
+    .unread-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+    .email-row-time { font-size: 10px; color: var(--text3); }
+    .email-row-subj { font-size: 11px; color: var(--text); font-family: Georgia, serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; margin-bottom: 2px; }
+    .email-row-snip { font-size: 10px; color: var(--text3); font-family: Georgia, serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
+    .email-tags { margin-top: 4px; display: flex; gap: 4px; }
+    .tag { font-size: 9px; padding: 1px 6px; border-radius: 99px; letter-spacing: .05em; }
+
+    /* Mail detail */
+    .mail-detail { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .mail-detail-header {
+      padding: 15px 20px; border-bottom: 1px solid var(--teal-bdr); flex-shrink: 0;
+    }
+    .detail-subject { font-size: 14px; font-weight: 700; color: var(--teal3); letter-spacing: .03em; margin-bottom: 5px; line-height: 1.3; }
+    .detail-meta { font-size: 11px; color: var(--teal2); }
+    .detail-meta span { color: var(--text); }
+    .detail-actions { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
+    .detail-body { flex: 1; overflow-y: auto; padding: 18px 20px; }
+    .email-body-preview {
+      background: linear-gradient(145deg,#0F1523,#0B1020);
+      border: 1px solid var(--teal-bdr); border-radius: 11px;
+      padding: 17px; margin-bottom: 15px;
+    }
+    .preview-label { font-size: 10px; color: var(--text3); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 9px; }
+    .preview-text { font-size: 13px; color: var(--text); font-family: Georgia, serif; line-height: 1.8; }
+
+    /* Reply composer */
+    .reply-composer {
+      background: linear-gradient(145deg,#0F1523,#0A0E1A);
+      border: 1px solid var(--teal-bdr); border-radius: 13px;
+      padding: 18px; position: relative; overflow: hidden;
+    }
+    .reply-composer::before { content:''; position:absolute;top:0;left:0;right:0;height:2px; background: linear-gradient(90deg,var(--blue),transparent); }
+    .reply-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 13px; }
+    .reply-to { font-size: 11px; color: var(--teal2); }
+    .reply-to span { color: var(--text); }
+    .reply-textarea {
+      width: 100%; min-height: 120px;
+      background: rgba(0,0,0,.4); border: 1px solid var(--teal-bdr);
+      border-radius: 8px; padding: 11px 13px;
+      font-size: 13px; color: var(--teal2); font-family: Georgia, serif;
+      line-height: 1.75; resize: vertical; outline: none;
+      transition: border-color .2s;
+    }
+    .reply-textarea:focus { border-color: var(--teal); }
+    .reply-footer { display: flex; gap: 8px; margin-top: 11px; align-items: center; }
+    .reply-status { font-size: 11px; margin-left: 4px; }
+
+    /* ─── EVENTS ─────────────────────────────────────────────────────── */
+    .next-event-banner {
+      background: linear-gradient(135deg,#0F1523,#0D1420);
+      border: 1px solid var(--teal-bdr); border-radius: 13px;
+      padding: 14px 18px; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .next-event-title { font-size: 13px; font-weight: 700; color: var(--teal3); letter-spacing: .03em; }
+    .events-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .event-card {
+      background: linear-gradient(145deg,#0F1523,#0B1020);
+      border: 1px solid var(--teal-bdr); border-radius: 13px;
+      padding: 15px 17px; cursor: pointer; transition: all .2s; position: relative; overflow: hidden;
+    }
+    .event-card::before { content:''; position:absolute;top:0;left:0;right:0;height:2px; background:linear-gradient(90deg,var(--blue),transparent); }
+    .event-card:hover { border-color: rgba(0,201,167,.4); }
+    .event-card.selected { border-color: var(--teal); box-shadow: 0 0 20px rgba(0,201,167,.15); }
+    .event-icon { font-size: 18px; color: var(--blue); margin-bottom: 7px; }
+    .event-title { font-size: 12px; font-weight: 700; color: var(--teal3); letter-spacing: .03em; margin-bottom: 7px; line-height: 1.3; }
+    .event-meta { font-size: 11px; color: var(--text2); margin-bottom: 2px; }
+    .recurring-badge {
+      position: absolute; top: 9px; right: 10px;
+      font-size: 9px; color: var(--teal); border: 1px solid var(--teal-bdr);
+      padding: 1px 6px; border-radius: 99px; letter-spacing: .07em;
+    }
+    .event-expanded {
+      margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--teal-bdr);
+    }
+    .event-desc { font-size: 12px; color: var(--text2); font-family: Georgia, serif; line-height: 1.7; margin-bottom: 10px; }
+    .event-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+
+    /* ─── WEB SEARCH ────────────────────────────────────────────────── */
+    .search-bar-wrap {
+      padding: 14px 20px; border-bottom: 1px solid var(--teal-bdr); flex-shrink: 0;
+    }
+    .search-input-row {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(0,0,0,.4); border: 1.5px solid var(--teal-bdr);
+      border-radius: 11px; padding: 8px 12px; transition: border-color .2s;
+    }
+    .search-input-row:focus-within { border-color: var(--teal); }
+    .search-icon { color: var(--teal); font-size: 16px; flex-shrink: 0; }
+    .search-input {
+      flex: 1; background: none; border: none; outline: none;
+      font-size: 13px; color: var(--teal2); font-family: Georgia, serif; line-height: 1.6;
+    }
+    .quick-topics { display: flex; gap: 6px; margin-top: 9px; flex-wrap: wrap; }
+    .topic-chip {
+      background: rgba(0,201,167,.06); border: 1px solid var(--teal-bdr);
+      border-radius: 99px; padding: 4px 11px; cursor: pointer;
+      font-size: 10px; color: var(--text3); font-family: Georgia, serif;
+      transition: all .2s;
+    }
+    .topic-chip:hover { background: rgba(0,201,167,.12); color: var(--teal2); border-color: var(--teal); }
+    .search-content { display: flex; flex: 1; overflow: hidden; }
+    .search-main { flex: 1; overflow-y: auto; padding: 18px 20px; }
+    .search-history-panel {
+      width: 200px; border-left: 1px solid var(--teal-bdr);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .history-header { padding: 11px 13px; border-bottom: 1px solid var(--teal-bdr); font-size: 10px; color: var(--text3); letter-spacing: .14em; text-transform: uppercase; font-weight: 700; }
+    .history-item { padding: 9px 13px; border-bottom: 1px solid rgba(0,201,167,.05); cursor: pointer; transition: background .2s; }
+    .history-item:hover { background: rgba(0,201,167,.05); }
+    .history-q { font-size: 11px; color: var(--teal2); font-family: Georgia, serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-t { font-size: 10px; color: var(--text3); margin-top: 1px; }
+    .search-empty { text-align: center; padding-top: 50px; }
+    .search-empty-icon { font-size: 48px; color: rgba(0,201,167,.1); margin-bottom: 14px; }
+    .search-result-card {
+      background: linear-gradient(145deg,#0F1523,#0B1020);
+      border: 1px solid var(--teal-bdr); border-radius: 13px;
+      padding: 19px 21px; position: relative; overflow: hidden;
+    }
+    .search-result-card::before { content:''; position:absolute;top:0;left:0;right:0;height:2px; background:linear-gradient(90deg,#6A5ACD,transparent); }
+    .search-result-label { font-size: 10px; color: var(--text3); letter-spacing: .09em; text-transform: uppercase; margin-bottom: 13px; }
+    .search-query-text { color: var(--teal2); font-family: Georgia, serif; font-style: italic; }
+    .search-actions { margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--teal-bdr); display: flex; gap: 8px; flex-wrap: wrap; }
+    .search-loading { display: flex; flex-direction: column; align-items: center; padding-top: 60px; gap: 14px; }
+    .spinner { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--teal); border-top-color: transparent; animation: spin 1s linear infinite; }
+
+    /* ─── AGENT ─────────────────────────────────────────────────────── */
+    #page-agent { flex-direction: column; }
+    .chat-area { flex: 1; overflow-y: auto; padding: 18px 22px; }
+    .chat-empty { text-align: center; padding-top: 30px; }
+    .chat-avatar {
+      width: 54px; height: 54px; border-radius: 12px; margin: 0 auto 12px;
+      background: linear-gradient(135deg, var(--teal), #003D35);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Shippori Mincho', serif; font-size: 22px; font-weight: 800;
+      color: #080C14; border: 1px solid var(--teal);
+      box-shadow: 0 8px 28px rgba(0,201,167,.3);
+    }
+    .chat-empty-title { font-size: 16px; font-weight: 700; color: var(--teal3); letter-spacing: .07em; margin-bottom: 5px; }
+    .chat-empty-sub { font-size: 11px; color: var(--text3); margin-bottom: 22px; letter-spacing: .05em; }
+    .suggestion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; max-width: 480px; margin: 0 auto; }
+    .suggestion-item {
+      background: rgba(0,201,167,.05); border: 1px solid var(--teal-bdr);
+      border-radius: 9px; padding: 9px 12px; cursor: pointer;
+      text-align: left; display: flex; gap: 8px; align-items: flex-start;
+      transition: all .2s;
+    }
+    .suggestion-item:hover { background: rgba(0,201,167,.1); border-color: var(--teal); }
+    .sug-icon { font-size: 12px; color: var(--teal); flex-shrink: 0; }
+    .sug-text { font-size: 11px; color: rgba(184,200,216,.5); line-height: 1.5; letter-spacing: .02em; }
+
+    .msg-row { display: flex; gap: 9px; margin-bottom: 14px; align-items: flex-start; animation: fadeIn .25s ease; }
+    .msg-row.user { flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 28px; height: 28px; border-radius: 7px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Shippori Mincho', serif; font-size: 11px; font-weight: 800;
+    }
+    .msg-avatar.ai   { background: linear-gradient(135deg,#111822,#192030); color: var(--teal); border: 1px solid var(--teal-bdr); }
+    .msg-avatar.user { background: linear-gradient(135deg,var(--teal),#006655); color: #080C14; border: 1px solid var(--teal); }
+    .msg-bubble {
+      max-width: 74%; padding: 11px 15px; word-break: break-word;
+      font-size: 13px; line-height: 1.75;
+    }
+    .msg-bubble.ai   { background: rgba(12,16,32,.9); border: 1px solid var(--teal-bdr); border-radius: 3px 13px 13px 13px; color: var(--text); }
+    .msg-bubble.user { background: rgba(0,201,167,.13); border: 1px solid rgba(0,201,167,.28); border-radius: 13px 3px 13px 13px; color: var(--teal2); }
+    .tool-tags { margin-top: 7px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .tool-tag { font-size: 10px; background: rgba(0,201,167,.1); color: var(--teal); padding: 2px 8px; border-radius: 99px; font-weight: 600; letter-spacing: .05em; }
+
+    .thinking-bubble {
+      background: rgba(12,16,32,.9); border: 1px solid var(--teal-bdr);
+      border-radius: 3px 13px 13px 13px; padding: 11px 16px;
+      font-size: 13px; color: var(--text3); display: flex; align-items: center; gap: 8px;
+    }
+    .think-dot { animation: pulse 1s infinite; color: var(--teal); }
+
+    /* Chat input */
+    .chat-input-area { background: var(--bg2); border-top: 1px solid var(--teal-bdr); padding: 11px 20px; flex-shrink: 0; }
+    .chat-input-row {
+      display: flex; gap: 7px; background: rgba(0,0,0,.4);
+      border: 1.5px solid var(--teal-bdr); border-radius: 11px;
+      padding: 7px 9px; align-items: flex-end; transition: border-color .2s;
+    }
+    .chat-input-row.listening { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,201,167,.12); }
+    .voice-btn {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: rgba(0,201,167,.07); border: 1px solid var(--teal-bdr);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--teal); transition: all .2s;
+    }
+    .voice-btn.active { background: linear-gradient(135deg,var(--teal),#006655); color: #080C14; border-color: var(--teal); animation: glow 1.5s ease-in-out infinite; }
+    #chat-input {
+      flex: 1; background: none; border: none; outline: none; resize: none;
+      font-size: 12px; color: var(--teal2); font-family: Georgia, serif;
+      line-height: 1.7; max-height: 110px; overflow-y: auto;
+    }
+    .send-btn {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--teal), #006655);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: #080C14; transition: all .2s;
+      box-shadow: 0 4px 12px rgba(0,201,167,.4);
+    }
+    .send-btn:disabled { background: rgba(0,201,167,.12); color: rgba(0,201,167,.25); cursor: not-allowed; box-shadow: none; }
+    .chat-hint { color: rgba(0,201,167,.18); font-size: 10px; margin-top: 6px; text-align: center; letter-spacing: .07em; }
+
+    /* ─── MISSIONS ──────────────────────────────────────────────────── */
+    .task-input-card {
+      background: linear-gradient(145deg,#0F1523,#0B1020);
+      border: 1px solid var(--teal-bdr); border-radius: 12px;
+      padding: 14px 18px; margin-bottom: 15px; position: relative; overflow: hidden;
+    }
+    .task-input-card::before { content:''; position:absolute;top:0;left:0;right:0;height:2px; background:linear-gradient(90deg,var(--teal),transparent); }
+    .task-label { font-size: 10px; font-weight: 700; color: var(--teal3); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px; }
+    .task-input-row { display: flex; gap: 8px; }
+    .task-input {
+      flex: 1; background: rgba(0,0,0,.4); border: 1px solid var(--teal-bdr);
+      border-radius: 8px; padding: 9px 13px; font-size: 12px; color: var(--teal2);
+      outline: none; font-family: Georgia, serif; transition: border-color .2s;
+    }
+    .task-input:focus { border-color: var(--teal); }
+    .task-filter-row { display: flex; gap: 7px; margin-bottom: 13px; align-items: center; }
+    .task-count { margin-left: auto; font-size: 10px; color: var(--text3); letter-spacing: .06em; }
+    .task-list { display: flex; flex-direction: column; gap: 7px; }
+    .task-row {
+      background: linear-gradient(145deg,#0F1523,#0B1020);
+      border: 1px solid var(--teal-bdr); border-radius: 10px;
+      padding: 11px 14px; display: flex; align-items: center; gap: 10px;
+      transition: opacity .2s;
+    }
+    .task-row.done { opacity: .55; }
+    .task-check {
+      width: 19px; height: 19px; border-radius: 5px; flex-shrink: 0; cursor: pointer;
+      border: 1.5px solid var(--teal-bdr); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 900; color: #080C14; transition: all .2s;
+    }
+    .task-check.checked { background: linear-gradient(135deg,var(--teal),#006655); border-color: var(--teal); }
+    .priority-pip { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .task-text { font-size: 12px; font-weight: 500; letter-spacing: .02em; flex: 1; }
+    .task-row.done .task-text { text-decoration: line-through; color: var(--text3); }
+    .task-meta { font-size: 10px; color: var(--text3); letter-spacing: .03em; }
+    .task-badge { font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: .07em; }
+    .del-btn { background: none; border: none; cursor: pointer; color: rgba(0,201,167,.16); font-size: 17px; padding: 0; transition: color .2s; line-height: 1; }
+    .del-btn:hover { color: var(--red); }
+
+    /* ─── Loading overlay ───────────────────────────────────────────── */
+    .loading-msg { display: flex; align-items: center; gap: 8px; color: var(--text3); font-size: 12px; letter-spacing: .05em; }
+    .loading-spin { animation: spin 1s linear infinite; display: inline-block; color: var(--teal); }
+
+    /* ─── Responsive ─────────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      #sidebar { width: 54px; }
+      .logo-text-wrap, .nav-label, .nav-badge, .tools-label, .tool-name, .tool-dot, .mission-counter { display: none; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .events-grid { grid-template-columns: 1fr; }
+      .suggestion-grid { grid-template-columns: 1fr; }
+      .mail-list { width: 100%; }
+      #page-mail.detail-open .mail-list { display: none; }
+      #page-mail.detail-open .mail-detail { display: flex; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Sidebar ──────────────────────────────────────────────────────── -->
+<nav id="sidebar">
+  <div class="logo-wrap" onclick="toggleSidebar()">
+    <div class="logo-icon">刻</div>
+    <div class="logo-text-wrap">
+      <div class="logo-name">Kairos</div>
+      <div class="logo-sub">刻 · TEMPORAL AGENT</div>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div style="display:flex;flex-direction:column;gap:0;margin-bottom:20px">
+    <button class="nav-item active" onclick="goTo('dashboard')" id="nav-dashboard">
+      <span class="nav-icon">⊞</span>
+      <span class="nav-label">Dashboard</span>
+    </button>
+    <button class="nav-item" onclick="goTo('mail')" id="nav-mail">
+      <span class="nav-icon">✉</span>
+      <span class="nav-label">Mail</span>
+      <span class="nav-badge" id="unread-badge" style="display:none">0</span>
+    </button>
+    <button class="nav-item" onclick="goTo('events')" id="nav-events">
+      <span class="nav-icon">◈</span>
+      <span class="nav-label">Events</span>
+    </button>
+    <button class="nav-item" onclick="goTo('search')" id="nav-search">
+      <span class="nav-icon">⊹</span>
+      <span class="nav-label">Web Search</span>
+    </button>
+    <button class="nav-item" onclick="goTo('agent')" id="nav-agent">
+      <span class="nav-icon">⟡</span>
+      <span class="nav-label">Command</span>
+    </button>
+    <button class="nav-item" onclick="goTo('tasks')" id="nav-tasks">
+      <span class="nav-icon">⊟</span>
+      <span class="nav-label">Missions</span>
+    </button>
+  </div>
+
+  <div class="sidebar-divider"></div>
+  <div class="tools-label">Neural Links</div>
+  <div id="tools-list"></div>
+
+  <div style="flex:1"></div>
+  <div class="mission-counter">
+    <div class="mission-num" id="mission-count">3</div>
+    <div class="mission-lbl">Active Missions</div>
+  </div>
+</nav>
+
+<!-- ─── Main ─────────────────────────────────────────────────────────── -->
+<div id="main">
+  <!-- Topbar -->
+  <div id="topbar">
+    <div>
+      <div class="topbar-title" id="page-title">Command Center</div>
+      <div class="topbar-date" id="topbar-date"></div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-sm btn-primary" id="topbar-action" onclick="topbarAction()" style="display:none">↺ REFRESH</button>
+      <div class="avatar">刻</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <!-- Aurora hero -->
+    <div class="hero">
+      <svg class="hero-svg" viewBox="0 0 900 190" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="aurora-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#060A14"/>
+            <stop offset="40%" stop-color="#081420"/>
+            <stop offset="75%" stop-color="#071A16"/>
+            <stop offset="100%" stop-color="#041410"/>
+          </linearGradient>
+          <radialGradient id="aurora1" cx="20%" cy="0%" r="60%">
+            <stop offset="0%" stop-color="#00C9A7" stop-opacity=".35"/>
+            <stop offset="60%" stop-color="#006699" stop-opacity=".12"/>
+            <stop offset="100%" stop-color="#00C9A7" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="aurora2" cx="80%" cy="0%" r="55%">
+            <stop offset="0%" stop-color="#0EA5E9" stop-opacity=".25"/>
+            <stop offset="50%" stop-color="#00C9A7" stop-opacity=".1"/>
+            <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="aurora3" cx="50%" cy="0%" r="40%">
+            <stop offset="0%" stop-color="#00FFCE" stop-opacity=".18"/>
+            <stop offset="100%" stop-color="#00FFCE" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="aurora-blur"><feGaussianBlur stdDeviation="8"/></filter>
+          <linearGradient id="city-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#041814" stop-opacity=".9"/>
+            <stop offset="100%" stop-color="#020C0A" stop-opacity="1"/>
+          </linearGradient>
+          <linearGradient id="water-reflect" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#00C9A7" stop-opacity=".2"/>
+            <stop offset="100%" stop-color="#020C0A" stop-opacity="1"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Sky -->
+        <rect width="900" height="190" fill="url(#aurora-sky)"/>
+
+        <!-- Aurora layers -->
+        <ellipse cx="180" cy="10" rx="350" ry="120" fill="url(#aurora1)" filter="url(#aurora-blur)" opacity=".9"/>
+        <ellipse cx="720" cy="5"  rx="320" ry="110" fill="url(#aurora2)" filter="url(#aurora-blur)" opacity=".8"/>
+        <ellipse cx="450" cy="0"  rx="250" ry="90"  fill="url(#aurora3)" filter="url(#aurora-blur)" opacity=".6"/>
+
+        <!-- Aurora ribbons -->
+        <path d="M0 80 Q 150 40 300 70 Q 450 100 600 55 Q 750 15 900 60" stroke="#00C9A7" stroke-width="1.5" fill="none" opacity=".25"/>
+        <path d="M0 95 Q 200 55 400 80 Q 600 105 900 72" stroke="#0EA5E9" stroke-width="1" fill="none" opacity=".18"/>
+        <path d="M0 108 Q 180 75 360 95 Q 540 115 720 80 Q 810 65 900 85" stroke="#00FFCE" stroke-width=".8" fill="none" opacity=".14"/>
+
+        <!-- Stars -->
+        <g opacity=".8">
+          <circle cx="45" cy="18" r="1.2" fill="#E0F0FF"/>
+          <circle cx="120" cy="8" r=".8" fill="#E0F0FF"/>
+          <circle cx="210" cy="24" r="1" fill="#E0F0FF"/>
+          <circle cx="350" cy="10" r=".8" fill="#E0F0FF"/>
+          <circle cx="430" cy="4" r="1.3" fill="#E0F0FF"/>
+          <circle cx="560" cy="20" r=".7" fill="#E0F0FF"/>
+          <circle cx="650" cy="7" r="1" fill="#E0F0FF"/>
+          <circle cx="750" cy="15" r=".8" fill="#E0F0FF"/>
+          <circle cx="820" cy="5" r="1.1" fill="#E0F0FF"/>
+          <circle cx="870" cy="28" r=".7" fill="#E0F0FF"/>
+          <circle cx="88"  cy="42" r=".7" fill="#E0F0FF" opacity=".5"/>
+          <circle cx="290" cy="38" r=".8" fill="#E0F0FF" opacity=".5"/>
+          <circle cx="490" cy="35" r=".7" fill="#E0F0FF" opacity=".5"/>
+          <circle cx="690" cy="40" r=".8" fill="#E0F0FF" opacity=".5"/>
+        </g>
+
+        <!-- Horizon glow -->
+        <rect x="0" y="138" width="900" height="6" fill="#00C9A7" opacity=".07"/>
+
+        <!-- Water reflection -->
+        <rect x="0" y="144" width="900" height="46" fill="url(#water-reflect)"/>
+        <!-- Teal reflection streak -->
+        <ellipse cx="450" cy="152" rx="120" ry="4" fill="#00C9A7" opacity=".12"/>
+        <rect x="420" y="150" width="60" height="1.5" rx="1" fill="#00FFCE" opacity=".25"/>
+        <rect x="428" y="155" width="44" height="1.5" rx="1" fill="#00FFCE" opacity=".15"/>
+        <rect x="436" y="160" width="28" height="1.5" rx="1" fill="#00FFCE" opacity=".08"/>
+
+        <!-- City silhouette -->
+        <rect x="0"   y="144" width="900" height="46" fill="url(#city-sky)"/>
+        <!-- Buildings L -->
+        <rect x="60"  y="120" width="18" height="70" fill="#030912"/>
+        <rect x="82"  y="110" width="12" height="80" fill="#030912"/>
+        <rect x="98"  y="126" width="20" height="64" fill="#030912"/>
+        <rect x="122" y="115" width="14" height="75" fill="#030912"/>
+        <rect x="140" y="130" width="22" height="60" fill="#030912"/>
+        <!-- Buildings R -->
+        <rect x="720" y="118" width="20" height="72" fill="#030912"/>
+        <rect x="744" y="108" width="14" height="82" fill="#030912"/>
+        <rect x="762" y="125" width="18" height="65" fill="#030912"/>
+        <rect x="784" y="112" width="16" height="78" fill="#030912"/>
+        <rect x="804" y="132" width="24" height="58" fill="#030912"/>
+        <!-- Center spire -->
+        <rect x="446" y="100" width="8"  height="90" fill="#030912"/>
+        <rect x="435" y="120" width="30" height="70" fill="#030912"/>
+        <!-- Window lights -->
+        <rect x="64"  y="124" width="4" height="3" fill="#00C9A7" opacity=".4"/>
+        <rect x="64"  y="132" width="4" height="3" fill="#00C9A7" opacity=".3"/>
+        <rect x="86"  y="114" width="3" height="3" fill="#0EA5E9" opacity=".35"/>
+        <rect x="102" y="130" width="4" height="3" fill="#00C9A7" opacity=".25"/>
+        <rect x="726" y="122" width="4" height="3" fill="#00FFCE" opacity=".3"/>
+        <rect x="748" y="112" width="3" height="3" fill="#0EA5E9" opacity=".4"/>
+        <rect x="766" y="130" width="4" height="3" fill="#00C9A7" opacity=".3"/>
+        <rect x="449" y="106" width="2" height="2" fill="#00FFCE" opacity=".6"/>
+        <rect x="439" y="126" width="3" height="3" fill="#00C9A7" opacity=".3"/>
+        <!-- Ground -->
+        <rect x="0" y="182" width="900" height="8" fill="#020B09"/>
+      </svg>
+
+      <div class="hero-content">
+        <div class="hero-eyebrow" id="hero-greeting">Good Morning · Kairos</div>
+        <h1 class="hero-title">Welcome, Commander</h1>
+        <p class="hero-sub" id="hero-sub">Loading your neural links…</p>
+        <div class="hero-btns">
+          <button class="btn btn-md btn-primary" onclick="goTo('agent')">COMMAND ⟡</button>
+          <button class="btn btn-md btn-outline" onclick="goTo('mail')">INBOX ✉</button>
+          <button class="btn btn-md btn-outline" onclick="goTo('events')">EVENTS ◈</button>
+          <button class="btn btn-md btn-outline" onclick="goTo('search')">SEARCH ⊹</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-area">
+      <!-- Stats -->
+      <div class="stats-row" id="stats-row"></div>
+
+      <!-- Priority inbox -->
+      <div class="gcard" style="margin-bottom:14px">
+        <div class="gcard-corner"><svg viewBox="0 0 48 48"><path d="M48 0 L48 48 L0 0Z" fill="#EF4444"/></svg></div>
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#EF4444,transparent)"></div>
+        <div class="gcard-header">
+          <div class="gcard-title-row"><span class="gcard-icon" style="color:var(--red)">⚑</span><span class="gcard-title">Priority Inbox</span></div>
+        </div>
+        <div id="priority-inbox-content"></div>
+      </div>
+
+      <!-- Motivation + Bible + Quick Search -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <!-- Motivation -->
+        <div class="gcard" style="--card-accent:#F59E0B">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#F59E0B,transparent)"></div>
+          <div class="gcard-header">
+            <div class="gcard-title-row"><span class="gcard-icon" style="color:#F59E0B">🔥</span><span class="gcard-title">Motivation</span></div>
+            <button class="refresh-btn" onclick="fetchMotivation()" id="mot-refresh">↺</button>
+          </div>
+          <div id="motivation-content"><div class="loading-msg"><span class="loading-spin">◌</span> Channeling…</div></div>
+        </div>
+        <!-- Bible -->
+        <div class="gcard">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#10B981,transparent)"></div>
+          <div class="gcard-header">
+            <div class="gcard-title-row"><span class="gcard-icon" style="color:#10B981">✝</span><span class="gcard-title">Scripture</span></div>
+            <button class="refresh-btn" onclick="fetchBible()" id="bible-refresh">↺</button>
+          </div>
+          <div id="bible-content"><div class="loading-msg"><span class="loading-spin">◌</span> Channeling…</div></div>
+        </div>
+        <!-- Quick Search -->
+        <div class="gcard">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#6A5ACD,transparent)"></div>
+          <div class="gcard-header">
+            <div class="gcard-title-row"><span class="gcard-icon" style="color:#6A5ACD">⊹</span><span class="gcard-title">Quick Search</span></div>
+          </div>
+          <div id="quick-searches"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIL -->
+  <div class="page" id="page-mail">
+    <div class="mail-list" id="mail-list-panel">
+      <div class="mail-filters" id="mail-filters"></div>
+      <div class="email-rows" id="email-rows"></div>
+    </div>
+    <div class="mail-detail" id="mail-detail-panel" style="display:none;flex-direction:column;">
+      <div class="mail-detail-header" id="mail-detail-header"></div>
+      <div class="detail-body" id="mail-detail-body"></div>
+    </div>
+  </div>
+
+  <!-- EVENTS -->
+  <div class="page" id="page-events">
+    <div class="scroll-area">
+      <div class="next-event-banner" id="next-event-banner"></div>
+      <div class="events-grid" id="events-grid"></div>
+      <div style="margin-top:16px;text-align:center">
+        <button class="btn btn-md btn-outline" onclick="goTo('agent');scheduleEventPrompt()">⟡ SCHEDULE NEW EVENT VIA COMMAND</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEB SEARCH -->
+  <div class="page" id="page-search" style="flex-direction:column">
+    <div class="search-bar-wrap">
+      <div class="search-input-row">
+        <span class="search-icon">⊹</span>
+        <input type="text" class="search-input" id="search-input" placeholder="Search the web… (press Enter)" onkeydown="if(event.key==='Enter')doSearch()"/>
+        <button onclick="document.getElementById('search-input').value=''" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0;line-height:1" title="Clear">×</button>
+        <button class="btn btn-sm btn-primary" onclick="doSearch()" id="search-btn">SEARCH</button>
+      </div>
+      <div class="quick-topics" id="quick-topics"></div>
+    </div>
+    <div class="search-content">
+      <div class="search-main" id="search-main"></div>
+      <div class="search-history-panel" id="search-history-panel" style="display:none">
+        <div class="history-header">Recent</div>
+        <div style="flex:1;overflow-y:auto" id="history-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENT -->
+  <div class="page" id="page-agent">
+    <div class="chat-area" id="chat-area">
+      <div class="chat-empty" id="chat-empty">
+        <div class="chat-avatar">刻</div>
+        <div class="chat-empty-title">AWAITING YOUR COMMAND</div>
+        <div class="chat-empty-sub" id="chat-empty-sub">Gmail · Calendar · Web Search · Reply</div>
+        <div class="suggestion-grid" id="suggestion-grid"></div>
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <div class="chat-input-row" id="chat-input-row">
+        <button class="voice-btn" id="voice-btn" onclick="toggleVoice()" title="Voice input">⊹</button>
+        <textarea id="chat-input" rows="1" placeholder="Command Kairos — email, calendar, search, reply…"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+          oninput="autoResize(this)"></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>↑</button>
+      </div>
+      <div class="chat-hint">ENTER · SHIFT+ENTER · <span id="voice-hint"></span></div>
+    </div>
+  </div>
+
+  <!-- MISSIONS -->
+  <div class="page" id="page-tasks">
+    <div class="scroll-area">
+      <div class="task-input-card">
+        <div class="task-label">⊹ New Mission</div>
+        <div class="task-input-row">
+          <input type="text" class="task-input" id="task-input" placeholder="Define your mission…" onkeydown="if(event.key==='Enter')addTask()"/>
+          <button class="btn btn-md btn-primary" onclick="addTask()">ADD</button>
+        </div>
+      </div>
+      <div class="task-filter-row" id="task-filter-row"></div>
+      <div class="task-list" id="task-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG — REPLACE WITH YOUR KEY ───────────────────────────────────────────
+const API_KEY = window.KAIROS_API_KEY || "";  // Set via Netlify env or config.js
+const MODEL   = "claude-sonnet-4-20250514";
+
+// ─── MCP servers (when user connects them) ────────────────────────────────────
+const MCP_GMAIL = { type:"url", url:"https://gmail.mcp.claude.com/mcp",  name:"gmail" };
+const MCP_GCAL  = { type:"url", url:"https://gcal.mcp.claude.com/mcp",   name:"gcal"  };
+
+// ─── State ────────────────────────────────────────────────────────────────────
+const STATE = {
+  activeTools: { gmail:true, calendar:true, websearch:true, zoho:true },
+  emails: [
+    { id:"e1", threadId:"t1", from:"Google",          addr:"no-reply@accounts.google.com", subject:"Security alert", snippet:"You allowed Claude for Google Calendar access to your Google Account.", time:"Today 10:21 AM", unread:true,  priority:true,  label:"UPDATES" },
+    { id:"e2", threadId:"t2", from:"Fathom",           addr:"no-reply@fathom.video",        subject:"Recap: Treescape Planet Organization Meeting", snippet:"Finalize planning for the CO2 Carbon tree-planting event. Confirmed for Saturday.", time:"Sun 1:50 PM", unread:true, priority:true, label:"UPDATES" },
+    { id:"e3", threadId:"t3", from:"Crossing Hurdles", addr:"notifications@ceipalmail.com", subject:"Customer Support Operator | $85/hr Remote | Micro1", snippet:"Hi Mwesigwa, we'd like to refer you for an exciting remote opportunity.", time:"Today 9:31 AM", unread:true, priority:false, label:"UPDATES" },
+    { id:"e4", threadId:"t4", from:"Glovo",            addr:"no-reply@glovoapp.com",        subject:"Details of your order", snippet:"Your Meza Shawarma Combo Chicken order has been delivered. Enjoy!", time:"Sun 8:10 AM", unread:true, priority:false, label:"IMPORTANT" },
+    { id:"e5", threadId:"t5", from:"jobup.ch",         addr:"candidat@jobup.ch",            subject:"Job recommendations for you", snippet:"Service Manager, CSV Manager — new roles matching your profile.", time:"Sun 5:45 PM", unread:true, priority:false, label:"UPDATES" },
+    { id:"e6", threadId:"t6", from:"Duolingo",         addr:"hello@duolingo.com",           subject:"💪 Crushing it, one Zulu lesson at a time", snippet:"Take a look at your stats. You're on a roll with Zulu!", time:"Sat 5:34 PM", unread:true, priority:false, label:"UPDATES" },
+  ],
+  events: [
+    { id:"ev1", title:"Meeting with TPO TEAM", date:"Sun, Mar 29", time:"4:00–5:00 PM", attendees:21, desc:"TPO Weekly Team Meeting — align on projects, share progress, discuss challenges, and plan upcoming activities.", recurring:true, link:"https://calendar.google.com" },
+    { id:"ev2", title:"Meeting with TPO TEAM", date:"Sun, Apr 5",  time:"4:00–5:00 PM", attendees:21, desc:"TPO Weekly Team Meeting — align on projects, share progress, discuss challenges, and plan upcoming activities.", recurring:true, link:"https://calendar.google.com" },
+    { id:"ev3", title:"Meeting with TPO TEAM", date:"Sun, Apr 12", time:"4:00–5:00 PM", attendees:21, desc:"TPO Weekly Team Meeting — align on projects, share progress, discuss challenges, and plan upcoming activities.", recurring:true, link:"https://calendar.google.com" },
+    { id:"ev4", title:"Meeting with TPO TEAM", date:"Sun, Apr 19", time:"4:00–5:00 PM", attendees:21, desc:"TPO Weekly Team Meeting — align on projects, share progress, discuss challenges, and plan upcoming activities.", recurring:true, link:"https://calendar.google.com" },
+    { id:"ev5", title:"Meeting with TPO TEAM", date:"Sun, Apr 26", time:"4:00–5:00 PM", attendees:21, desc:"TPO Weekly Team Meeting — align on projects, share progress, discuss challenges, and plan upcoming activities.", recurring:true, link:"https://calendar.google.com" },
+  ],
+  tasks: [
+    { id:1, text:"Review Q2 talent pipeline",     done:false, priority:"high",   created:"Today 9:00 AM", source:"manual" },
+    { id:2, text:"Send webinar follow-up emails", done:false, priority:"medium", created:"Today 9:05 AM", source:"agent"  },
+    { id:3, text:"Check calendar conflicts",      done:true,  priority:"low",    created:"Yesterday",     source:"agent"  },
+  ],
+  messages: [],
+  selectedEmail: null,
+  selectedEvent: null,
+  mailFilter: "all",
+  taskFilter: "all",
+  searchHistory: [],
+  listening: false,
+  voiceOK: false,
+  agentLoading: false,
+  currentPage: "dashboard",
+};
+
+const QUICK_SEARCHES = ["talent management trends 2026","remote work best practices","Kampala tech events 2026","AI productivity tools","carbon credit markets Africa"];
+const TOPICS = { dashboard:"Command Center", mail:"Inbox", events:"Calendar", search:"Web Search", agent:"Neural Command", tasks:"Mission Log" };
+const PC = { high:"#EF4444", medium:"#F59E0B", low:"#10B981" };
+
+// ─── Claude API call ─────────────────────────────────────────────────────────
+async function claude(messages, mcpServers=[], webSearch=false) {
+  const tools = webSearch ? [{ type:"web_search_20250305", name:"web_search" }] : [];
+  const headers = { "Content-Type":"application/json" };
+  if (API_KEY) headers["x-api-key"] = API_KEY;
+
+  const body = {
+    model: MODEL, max_tokens: 1000,
+    system: `You are Kairos (刻) — a precise, warm, spiritually grounded AI productivity agent. Connected to Gmail, Google Calendar, and Web Search. Be concise and action-oriented. Format responses in markdown.`,
+    messages,
+    ...(mcpServers.length > 0 && { mcp_servers: mcpServers }),
+    ...(tools.length > 0 && { tools }),
+  };
+
+  const res  = await fetch("https://api.anthropic.com/v1/messages", { method:"POST", headers, body: JSON.stringify(body) });
+  const data = await res.json();
+  const text = data.content?.filter(b=>b.type==="text").map(b=>b.text).join("\n") || "No response generated.";
+  const toolsUsed = data.content?.filter(b=>b.type==="mcp_tool_use"||b.type==="tool_use").map(b=>b.name) || [];
+  return { text, toolsUsed };
+}
+
+// ─── Markdown renderer ────────────────────────────────────────────────────────
+function md(text) {
+  if (!text) return "";
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/^## (.+)$/gm, `<div class="md-h2">$1</div>`)
+    .replace(/^[-•] (.+)$/gm, `<div class="md-bullet"><span class="md-dot">·</span><span>$1</span></div>`)
+    .replace(/\n/g, "<br/>");
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+function init() {
+  // Date
+  document.getElementById("topbar-date").textContent = new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+
+  // Greeting
+  const h = new Date().getHours();
+  const g = h<12?"Good Morning":h<17?"Good Afternoon":"Good Evening";
+  document.getElementById("hero-greeting").textContent = `${g} · Kairos`;
+
+  // Hero sub
+  const unread = STATE.emails.filter(e=>e.unread).length;
+  const pending = STATE.tasks.filter(t=>!t.done).length;
+  document.getElementById("hero-sub").textContent = `${Object.keys(STATE.activeTools).length} neural links active · ${pending} missions pending · ${unread} unread messages ✦`;
+
+  // Voice
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SR) {
+    STATE.voiceOK = true;
+    document.getElementById("voice-hint").textContent = "VOICE ENABLED";
+    const r = new SR();
+    r.continuous = false; r.interimResults = false; r.lang = "en-US";
+    r.onresult = e => { document.getElementById("chat-input").value = e.results[0][0].transcript; autoResize(document.getElementById("chat-input")); updateSendBtn(); STATE.listening=false; updateVoiceBtn(); };
+    r.onerror = () => { STATE.listening=false; updateVoiceBtn(); };
+    r.onend   = () => { STATE.listening=false; updateVoiceBtn(); };
+    STATE.rec = r;
+  }
+
+  renderTools();
+  renderStats();
+  renderPriorityInbox();
+  renderMailList();
+  renderEvents();
+  renderQuickSearches();
+  renderTasks();
+  renderSuggestions();
+  updateBadges();
+  updateMissionCount();
+
+  // Auto-fetch dashboard content
+  fetchMotivation();
+  fetchBible();
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function goTo(page) {
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  document.getElementById(`page-${page}`).classList.add("active");
+  document.getElementById(`nav-${page}`).classList.add("active");
+  document.getElementById("page-title").textContent = TOPICS[page];
+  STATE.currentPage = page;
+
+  const action = document.getElementById("topbar-action");
+  if (page === "dashboard") { action.style.display="inline-flex"; action.textContent="↺ REFRESH"; }
+  else { action.style.display="none"; }
+}
+
+function topbarAction() {
+  if (STATE.currentPage === "dashboard") { fetchMotivation(); fetchBible(); }
+}
+
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("collapsed");
+}
+
+// ─── Tools panel ─────────────────────────────────────────────────────────────
+const TOOL_DEFS = [
+  { id:"gmail",     name:"Gmail",           icon:"✉"  },
+  { id:"calendar",  name:"Google Calendar", icon:"◈"  },
+  { id:"websearch", name:"Web Search",      icon:"⊹"  },
+  { id:"zoho",      name:"Zoho CRM",        icon:"◉"  },
+];
+
+function renderTools() {
+  const el = document.getElementById("tools-list");
+  el.innerHTML = TOOL_DEFS.map(t => `
+    <div class="tool-row ${STATE.activeTools[t.id]?'on':''}" onclick="toggleTool('${t.id}')" id="tool-${t.id}">
+      <span class="tool-icon">${t.icon}</span>
+      <span class="tool-name">${t.name}</span>
+      <div class="tool-dot"></div>
+    </div>`).join("");
+}
+
+function toggleTool(id) {
+  STATE.activeTools[id] = !STATE.activeTools[id];
+  renderTools();
+}
+
+// ─── Stats ────────────────────────────────────────────────────────────────────
+function renderStats() {
+  const unread  = STATE.emails.filter(e=>e.unread).length;
+  const priority = STATE.emails.filter(e=>e.priority).length;
+  const pending  = STATE.tasks.filter(t=>!t.done).length;
+  const stats = [
+    { lbl:"Unread",   val:unread,           icon:"✉", c:"#00C9A7", page:"mail"   },
+    { lbl:"Priority", val:priority,          icon:"⚑", c:"#EF4444", page:"mail"   },
+    { lbl:"Events",   val:STATE.events.length,icon:"◈", c:"#0EA5E9", page:"events" },
+    { lbl:"Missions", val:pending,           icon:"⊟", c:"#10B981", page:"tasks"  },
+  ];
+  document.getElementById("stats-row").innerHTML = stats.map(s=>`
+    <div class="stat-card" onclick="goTo('${s.page}')" style="--c:${s.c}">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${s.c},transparent)"></div>
+      <div class="stat-icon" style="color:${s.c}">${s.icon}</div>
+      <div class="stat-val" style="color:${s.c}">${s.val}</div>
+      <div class="stat-lbl">${s.lbl}</div>
+    </div>`).join("");
+}
+
+// ─── Priority Inbox ───────────────────────────────────────────────────────────
+function renderPriorityInbox() {
+  const priority = STATE.emails.filter(e=>e.priority);
+  const el = document.getElementById("priority-inbox-content");
+  if (!priority.length) { el.innerHTML = `<p style="color:var(--text3);font-size:12px">No priority emails right now.</p>`; return; }
+  el.innerHTML = priority.map(em=>`
+    <div class="priority-email" onclick="goTo('mail');selectEmail('${em.id}')">
+      <div class="priority-dot"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;gap:8px">
+          <span class="email-from">${em.from}</span>
+          <span class="email-time">${em.time}</span>
+        </div>
+        <div class="email-subj">${em.subject}</div>
+        <div class="email-snip">${em.snippet}</div>
+      </div>
+    </div>`).join("") +
+    `<button class="btn btn-sm btn-outline" onclick="goTo('mail')" style="margin-top:8px;width:100%">VIEW ALL MAIL →</button>`;
+}
+
+// ─── Motivation ───────────────────────────────────────────────────────────────
+async function fetchMotivation() {
+  const el = document.getElementById("motivation-content");
+  const btn = document.getElementById("mot-refresh");
+  el.innerHTML = `<div class="loading-msg"><span class="loading-spin">◌</span> Channeling…</div>`;
+  btn.classList.add("spinning");
+  try {
+    const { text } = await claude([{role:"user",content:"Give me 2-3 sentences of powerful motivational wisdom for a high-achieving, spiritually grounded professional. Make it feel like wisdom from a master."}]);
+    el.innerHTML = `<div class="md-content left-bar" style="border-color:#F59E0B">${md(text)}</div>`;
+  } catch {
+    el.innerHTML = `<div class="md-content" style="color:var(--text3)">You were built for this moment. Rise with purpose.</div>`;
+  }
+  btn.classList.remove("spinning");
+}
+
+async function fetchBible() {
+  const el = document.getElementById("bible-content");
+  const btn = document.getElementById("bible-refresh");
+  el.innerHTML = `<div class="loading-msg"><span class="loading-spin">◌</span> Channeling…</div>`;
+  btn.classList.add("spinning");
+  try {
+    const { text } = await claude([{role:"user",content:"Share one Bible verse for a focused professional day. Include book chapter:verse and a one-line reflection."}]);
+    el.innerHTML = `<div class="md-content left-bar" style="border-color:#10B981">${md(text)}</div>`;
+  } catch {
+    el.innerHTML = `<div class="md-content left-bar" style="border-color:#10B981;color:var(--text2)">"Commit your work to the Lord, and your plans will be established." — Proverbs 16:3</div>`;
+  }
+  btn.classList.remove("spinning");
+}
+
+// ─── Quick search tiles ───────────────────────────────────────────────────────
+function renderQuickSearches() {
+  document.getElementById("quick-searches").innerHTML = QUICK_SEARCHES.slice(0,4).map(q=>`
+    <div class="quick-search-item" onclick="goTo('search');triggerSearch('${q}')">⊹ ${q}</div>`).join("") +
+    `<button class="btn btn-sm btn-outline" onclick="goTo('search')" style="margin-top:8px;width:100%;font-size:10px">OPEN SEARCH →</button>`;
+}
+
+// ─── Mail ─────────────────────────────────────────────────────────────────────
+function labelColor(l) { return l==="IMPORTANT"?"#EF4444":l==="PROMOTIONS"?"#A855F7":"#0EA5E9"; }
+
+function renderMailList() {
+  // filters
+  const filters = ["all","unread","priority"];
+  document.getElementById("mail-filters").innerHTML = filters.map(f=>`
+    <button class="filter-btn ${STATE.mailFilter===f?'active':''}" onclick="setMailFilter('${f}')">
+      ${f} (${f==="all"?STATE.emails.length:f==="unread"?STATE.emails.filter(e=>e.unread).length:STATE.emails.filter(e=>e.priority).length})
+    </button>`).join("");
+
+  // rows
+  const filtered = STATE.mailFilter==="all" ? STATE.emails : STATE.mailFilter==="unread" ? STATE.emails.filter(e=>e.unread) : STATE.emails.filter(e=>e.priority);
+  document.getElementById("email-rows").innerHTML = filtered.map(em=>`
+    <div class="email-row ${em.priority?'priority':''} ${STATE.selectedEmail?.id===em.id?'selected':''}" onclick="selectEmail('${em.id}')">
+      <div class="email-row-header">
+        <div class="email-row-from">${em.unread?'<div class="unread-dot"></div>':''} ${em.from}</div>
+        <div class="email-row-time">${em.time}</div>
+      </div>
+      <div class="email-row-subj">${em.subject}</div>
+      <div class="email-row-snip">${em.snippet}</div>
+      <div class="email-tags">
+        <span class="tag" style="border:1px solid ${labelColor(em.label)}44;color:${labelColor(em.label)}">${em.label}</span>
+        ${em.priority?'<span class="tag" style="border:1px solid rgba(239,68,68,.35);color:#EF4444">PRIORITY</span>':''}
+      </div>
+    </div>`).join("");
+}
+
+function setMailFilter(f) { STATE.mailFilter=f; renderMailList(); }
+
+function selectEmail(id) {
+  STATE.selectedEmail = STATE.emails.find(e=>e.id===id);
+  renderMailList();
+  renderEmailDetail();
+  document.getElementById("mail-detail-panel").style.display = "flex";
+  document.getElementById("page-mail").classList.add("detail-open");
+}
+
+function renderEmailDetail() {
+  const em = STATE.selectedEmail;
+  if (!em) return;
+  document.getElementById("mail-detail-header").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+      <div style="flex:1">
+        <div class="detail-subject">${em.subject}</div>
+        <div class="detail-meta">From: <span>${em.from} &lt;${em.addr}&gt;</span></div>
+        <div class="detail-meta" style="margin-top:2px">Date: <span>${em.time}</span></div>
+      </div>
+      <div style="display:flex;gap:7px;flex-shrink:0">
+        <button class="btn btn-sm btn-primary" onclick="openReply()">↩ REPLY</button>
+        <button class="btn btn-sm btn-outline" onclick="closeDetail()">×</button>
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-sm btn-outline" onclick="summarizeEmail()">⟡ SUMMARIZE</button>
+      <button class="btn btn-sm btn-outline" onclick="addEmailTask()">⊟ TASK</button>
+      <button class="btn btn-sm btn-outline" onclick="researchSender()">⊹ RESEARCH</button>
+    </div>`;
+
+  document.getElementById("mail-detail-body").innerHTML = `
+    <div class="email-body-preview">
+      <div class="preview-label">Message Preview</div>
+      <div class="preview-text">${em.snippet}</div>
+    </div>
+    <div id="reply-area"></div>`;
+}
+
+function closeDetail() {
+  STATE.selectedEmail = null;
+  document.getElementById("mail-detail-panel").style.display="none";
+  document.getElementById("page-mail").classList.remove("detail-open");
+  renderMailList();
+}
+
+function openReply() {
+  const em = STATE.selectedEmail;
+  document.getElementById("reply-area").innerHTML = `
+    <div class="reply-composer" id="reply-composer">
+      <div class="reply-header">
+        <div>
+          <div style="font-weight:700;font-size:12px;color:var(--teal3);letter-spacing:.06em">↩ REPLY</div>
+          <div class="reply-to" style="margin-top:3px">To: <span>${em.from} &lt;${em.addr}&gt;</span></div>
+          <div class="reply-to">Re: <span>${em.subject}</span></div>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="document.getElementById('reply-area').innerHTML=''">×</button>
+      </div>
+      <div style="margin-bottom:10px;display:flex;align-items:center;gap:10px">
+        <button class="btn btn-sm btn-primary" onclick="aiDraftReply()">⟡ AI DRAFT</button>
+        <span style="color:var(--text3);font-size:10px;letter-spacing:.05em">or type your own below</span>
+      </div>
+      <textarea class="reply-textarea" id="reply-body" placeholder="Write your reply…"></textarea>
+      <div class="reply-footer">
+        <button class="btn btn-sm btn-primary" onclick="sendReply()" id="send-reply-btn">SEND ↑</button>
+        <button class="btn btn-sm btn-outline" onclick="document.getElementById('reply-body').value=''">CLEAR</button>
+        <span class="reply-status" id="reply-status"></span>
+      </div>
+    </div>`;
+}
+
+async function aiDraftReply() {
+  const em = STATE.selectedEmail;
+  const statusEl = document.getElementById("reply-status");
+  statusEl.innerHTML = `<span style="color:var(--text3)"><span style="animation:spin 1s linear infinite;display:inline-block">◌</span> Drafting…</span>`;
+  try {
+    const { text } = await claude([{role:"user",content:`Draft a professional, warm email reply to:\nFrom: ${em.from}\nSubject: ${em.subject}\nMessage: ${em.snippet}\n\nWrite ONLY the reply body. Be professional and concise.`}]);
+    document.getElementById("reply-body").value = text;
+    statusEl.innerHTML = "";
+  } catch { statusEl.innerHTML = `<span style="color:var(--red)">Draft failed</span>`; }
+}
+
+async function sendReply() {
+  const body = document.getElementById("reply-body").value.trim();
+  if (!body) return;
+  const em = STATE.selectedEmail;
+  const btn = document.getElementById("send-reply-btn");
+  const statusEl = document.getElementById("reply-status");
+  btn.textContent = "SENDING…"; btn.disabled = true;
+  statusEl.innerHTML = "";
+  try {
+    await claude(
+      [{role:"user",content:`Create a Gmail draft reply to thread ${em.threadId} with this body:\n\n${body}`}],
+      [MCP_GMAIL]
+    );
+    statusEl.innerHTML = `<span style="color:var(--green)">✓ Draft saved to Gmail</span>`;
+    btn.textContent = "SENT ✓";
+  } catch {
+    statusEl.innerHTML = `<span style="color:var(--red)">⚠ Failed — check connection</span>`;
+    btn.textContent = "SEND ↑"; btn.disabled = false;
+  }
+}
+
+function summarizeEmail() {
+  const em = STATE.selectedEmail;
+  goTo("agent");
+  sendAgentMessage(`Summarize this email from ${em.from} — Subject: "${em.subject}" — Content: ${em.snippet}`);
+}
+function addEmailTask() {
+  const em = STATE.selectedEmail;
+  addTaskItem(`Follow up: ${em.subject}`, "medium");
+}
+function researchSender() {
+  const em = STATE.selectedEmail;
+  goTo("search");
+  triggerSearch(em.from + " " + em.subject.split(" ").slice(0,3).join(" "));
+}
+
+// ─── Events ───────────────────────────────────────────────────────────────────
+function renderEvents() {
+  const next = STATE.events[0];
+  document.getElementById("next-event-banner").innerHTML = next ? `
+    <div>
+      <div style="font-size:10px;color:var(--text3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px">Next Event</div>
+      <div class="next-event-title">${next.title}</div>
+      <div style="font-size:11px;color:var(--teal2);margin-top:2px">${next.date} · ${next.time}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:10px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px">Attendees</div>
+      <div style="font-size:22px;font-weight:700;color:var(--teal2)">${next.attendees}</div>
+    </div>` : "";
+
+  document.getElementById("events-grid").innerHTML = STATE.events.map(ev=>`
+    <div class="event-card ${STATE.selectedEvent?.id===ev.id?'selected':''}" onclick="selectEvent('${ev.id}')">
+      ${ev.recurring?'<div class="recurring-badge">RECURRING</div>':''}
+      <div class="event-icon">◈</div>
+      <div class="event-title">${ev.title}</div>
+      <div class="event-meta">📅 ${ev.date}</div>
+      <div class="event-meta">🕐 ${ev.time}</div>
+      <div class="event-meta">👥 ${ev.attendees} attendees</div>
+      ${STATE.selectedEvent?.id===ev.id ? `
+        <div class="event-expanded">
+          <div class="event-desc">${ev.desc}</div>
+          <div class="event-actions">
+            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();window.open('${ev.link}','_blank')">🔗 OPEN</button>
+            <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();eventDetails('${ev.id}')">⟡ DETAILS</button>
+            <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();prepTask('${ev.id}')">⊟ PREP</button>
+          </div>
+        </div>` : ""}
+    </div>`).join("");
+}
+
+function selectEvent(id) {
+  STATE.selectedEvent = STATE.selectedEvent?.id===id ? null : STATE.events.find(e=>e.id===id);
+  renderEvents();
+}
+function eventDetails(id) {
+  const ev = STATE.events.find(e=>e.id===id);
+  goTo("agent");
+  sendAgentMessage(`Tell me more about: ${ev.title} on ${ev.date} at ${ev.time} with ${ev.attendees} attendees.`);
+}
+function prepTask(id) {
+  const ev = STATE.events.find(e=>e.id===id);
+  addTaskItem(`Prepare for: ${ev.title} — ${ev.date}`, "high");
+}
+function scheduleEventPrompt() {
+  sendAgentMessage("Help me schedule a new calendar event. What details do you need?");
+}
+
+// ─── Web Search ───────────────────────────────────────────────────────────────
+function renderQuickTopics() {
+  document.getElementById("quick-topics").innerHTML = QUICK_SEARCHES.map(q=>`
+    <div class="topic-chip" onclick="triggerSearch('${q}')">${q}</div>`).join("");
+}
+
+function triggerSearch(q) {
+  document.getElementById("search-input").value = q;
+  doSearch(q);
+}
+
+async function doSearch(q) {
+  const query = (q || document.getElementById("search-input").value).trim();
+  if (!query) return;
+  const main = document.getElementById("search-main");
+  const btn  = document.getElementById("search-btn");
+  btn.textContent = "…"; btn.disabled = true;
+  main.innerHTML = `<div class="search-loading"><div class="spinner"></div><p style="color:var(--text3);font-size:12px;letter-spacing:.1em">SEARCHING THE WEB…</p></div>`;
+
+  try {
+    const { text } = await claude([{role:"user",content:`Search the web for: ${query}. Provide a comprehensive, well-organized answer. Format with markdown.`}], [], true);
+    main.innerHTML = `
+      <div style="margin-bottom:14px">
+        <span class="search-result-label">RESULTS FOR: </span>
+        <span class="search-query-text">"${query}"</span>
+      </div>
+      <div class="search-result-card">
+        <div class="md-content">${md(text)}</div>
+        <div class="search-actions">
+          <button class="btn btn-sm btn-primary" onclick="goTo('agent');sendAgentMessage('Discuss this topic further: ${query.replace(/'/g,"\\'")}')">⟡ DISCUSS</button>
+          <button class="btn btn-sm btn-outline" onclick="addTaskItem('Research: ${query.replace(/'/g,"\\'")}','low')">⊟ SAVE TO MISSIONS</button>
+        </div>
+      </div>`;
+
+    STATE.searchHistory.unshift({ q:query, time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}) });
+    STATE.searchHistory = STATE.searchHistory.slice(0,10);
+    renderSearchHistory();
+  } catch {
+    main.innerHTML = `<div style="color:var(--red);font-size:13px;padding:20px">⚠ Search failed. Check your API key and connection.</div>`;
+  }
+  btn.textContent = "SEARCH"; btn.disabled = false;
+}
+
+function renderSearchHistory() {
+  const panel = document.getElementById("search-history-panel");
+  const list  = document.getElementById("history-list");
+  if (!STATE.searchHistory.length) { panel.style.display="none"; return; }
+  panel.style.display = "flex";
+  list.innerHTML = STATE.searchHistory.map(h=>`
+    <div class="history-item" onclick="triggerSearch('${h.q.replace(/'/g,"\\'")}')">
+      <div class="history-q">${h.q}</div>
+      <div class="history-t">${h.time}</div>
+    </div>`).join("");
+}
+
+// ─── Agent ────────────────────────────────────────────────────────────────────
+function renderSuggestions() {
+  const sugs = [
+    {icon:"✉", text:"Search my inbox for unread emails"},
+    {icon:"◈", text:"What meetings do I have this week?"},
+    {icon:"⊹", text:"Search: talent management trends 2026"},
+    {icon:"⟡", text:"Draft a reply to the Fathom recap"},
+    {icon:"◈", text:"Schedule a meeting next Monday 10am"},
+    {icon:"◉", text:"Show my Zoho CRM leads this month"},
+  ];
+  document.getElementById("suggestion-grid").innerHTML = sugs.map(s=>`
+    <div class="suggestion-item" onclick="sendAgentMessage('${s.text.replace(/'/g,"\\'")}')">
+      <span class="sug-icon">${s.icon}</span>
+      <span class="sug-text">${s.text}</span>
+    </div>`).join("");
+}
+
+function sendAgentMessage(text) {
+  if (!text) return;
+  document.getElementById("chat-input").value = text;
+  sendMessage();
+}
+
+async function sendMessage() {
+  const input = document.getElementById("chat-input");
+  const text = input.value.trim();
+  if (!text || STATE.agentLoading) return;
+  input.value = ""; autoResize(input); updateSendBtn();
+
+  // Hide empty state
+  document.getElementById("chat-empty").style.display = "none";
+
+  // Add user message
+  STATE.messages.push({ role:"user", content:text });
+  appendMsg({ role:"user", content:text });
+
+  // Auto-task
+  if (/remind me to|add task|don't forget|follow up on/i.test(text)) {
+    const tx = text.replace(/remind me to|add task:|don't forget to|follow up on/gi,"").trim();
+    if (tx.length>3) addTaskItem(tx,"medium");
+  }
+
+  // Thinking
+  STATE.agentLoading = true;
+  updateSendBtn();
+  const thinkEl = appendThinking();
+
+  // Build MCP servers
+  const mcpServers = [];
+  if (STATE.activeTools.gmail)    mcpServers.push(MCP_GMAIL);
+  if (STATE.activeTools.calendar) mcpServers.push(MCP_GCAL);
+
+  try {
+    const { text:reply, toolsUsed } = await claude(STATE.messages, mcpServers, STATE.activeTools.websearch);
+    STATE.messages.push({ role:"assistant", content:reply });
+    thinkEl.remove();
+    appendMsg({ role:"assistant", content:reply, toolsUsed });
+  } catch {
+    thinkEl.remove();
+    appendMsg({ role:"assistant", content:"⚠ Connection disrupted. Check your API key in config.", toolsUsed:[] });
+  }
+
+  STATE.agentLoading = false;
+  updateSendBtn();
+}
+
+function appendMsg(msg) {
+  const area = document.getElementById("chat-area");
+  const isUser = msg.role === "user";
+  const div = document.createElement("div");
+  div.className = `msg-row ${isUser?"user":""}`;
+  div.innerHTML = `
+    <div class="msg-avatar ${isUser?"user":"ai"}">${isUser?"U":"刻"}</div>
+    <div class="msg-bubble ${isUser?"user":"ai"}">
+      ${isUser ? msg.content : `<div class="md-content">${md(msg.content)}</div>`}
+      ${(msg.toolsUsed||[]).length ? `<div class="tool-tags">${msg.toolsUsed.map(t=>`<span class="tool-tag">⊹ ${t}</span>`).join("")}</div>` : ""}
+    </div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+function appendThinking() {
+  const area = document.getElementById("chat-area");
+  const div = document.createElement("div");
+  div.className = "msg-row";
+  div.innerHTML = `
+    <div class="msg-avatar ai">刻</div>
+    <div class="thinking-bubble"><span class="think-dot">◌</span> Processing…</div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return div;
+}
+
+// ─── Voice ────────────────────────────────────────────────────────────────────
+function toggleVoice() {
+  if (!STATE.voiceOK) return;
+  if (STATE.listening) { STATE.rec.stop(); STATE.listening=false; }
+  else { STATE.rec.start(); STATE.listening=true; }
+  updateVoiceBtn();
+}
+function updateVoiceBtn() {
+  const btn = document.getElementById("voice-btn");
+  const row = document.getElementById("chat-input-row");
+  btn.classList.toggle("active", STATE.listening);
+  row.classList.toggle("listening", STATE.listening);
+  btn.title = STATE.listening ? "Stop listening" : "Voice input";
+}
+
+// ─── Tasks ────────────────────────────────────────────────────────────────────
+function addTask() { addTaskItem(document.getElementById("task-input").value, "medium"); document.getElementById("task-input").value=""; }
+
+function addTaskItem(text, priority="medium", source="manual") {
+  if (!text.trim()) return;
+  STATE.tasks.push({ id:Date.now(), text:text.trim(), done:false, priority, source, created:`Today ${new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}` });
+  renderTasks();
+  updateMissionCount();
+}
+
+function renderTasks() {
+  const filters = ["all","active","done"];
+  document.getElementById("task-filter-row").innerHTML = filters.map(f=>`
+    <button class="filter-btn ${STATE.taskFilter===f?'active':''}" onclick="setTaskFilter('${f}')">
+      ${f} (${f==="all"?STATE.tasks.length:f==="active"?STATE.tasks.filter(t=>!t.done).length:STATE.tasks.filter(t=>t.done).length})
+    </button>`).join("") +
+    `<span class="task-count">${STATE.tasks.filter(t=>t.done).length}/${STATE.tasks.length} complete</span>`;
+
+  const filtered = STATE.taskFilter==="all" ? STATE.tasks : STATE.taskFilter==="done" ? STATE.tasks.filter(t=>t.done) : STATE.tasks.filter(t=>!t.done);
+  document.getElementById("task-list").innerHTML = filtered.length ? filtered.map(t=>`
+    <div class="task-row ${t.done?'done':''}">
+      <div class="task-check ${t.done?'checked':''}" onclick="toggleTask(${t.id})">${t.done?"✓":""}</div>
+      <div class="priority-pip" style="background:${PC[t.priority]};box-shadow:0 0 5px ${PC[t.priority]}88"></div>
+      <div style="flex:1">
+        <div class="task-text" style="color:${t.done?'var(--text3)':'var(--teal2)'}">${t.text}</div>
+        <div class="task-meta">${t.source==="agent"?"⟡ via Kairos":"⊹ Manual"} · ${t.created}</div>
+      </div>
+      <span class="task-badge" style="background:${t.priority==="high"?"rgba(239,68,68,.1)":t.priority==="medium"?"rgba(245,158,11,.1)":"rgba(16,185,129,.1)"};color:${PC[t.priority]};border:1px solid ${PC[t.priority]}44">${t.priority}</span>
+      <button class="del-btn" onclick="deleteTask(${t.id})">×</button>
+    </div>`).join("") :
+    `<div style="text-align:center;padding:36px 0;color:var(--text3);font-size:12px;letter-spacing:.08em">No missions in this category</div>`;
+}
+
+function setTaskFilter(f) { STATE.taskFilter=f; renderTasks(); }
+function toggleTask(id) { const t=STATE.tasks.find(t=>t.id===id); if(t){t.done=!t.done;} renderTasks(); updateMissionCount(); renderStats(); }
+function deleteTask(id) { STATE.tasks=STATE.tasks.filter(t=>t.id!==id); renderTasks(); updateMissionCount(); renderStats(); }
+
+// ─── Utility ──────────────────────────────────────────────────────────────────
+function updateMissionCount() { document.getElementById("mission-count").textContent = STATE.tasks.filter(t=>!t.done).length; }
+function updateBadges() {
+  const badge = document.getElementById("unread-badge");
+  const count = STATE.emails.filter(e=>e.unread).length;
+  badge.textContent = count;
+  badge.style.display = count ? "inline-flex" : "none";
+}
+function autoResize(el) { el.style.height="auto"; el.style.height=Math.min(el.scrollHeight,110)+"px"; }
+function updateSendBtn() {
+  const btn = document.getElementById("send-btn");
+  btn.disabled = STATE.agentLoading || !document.getElementById("chat-input").value.trim();
+}
+
+document.getElementById("chat-input").addEventListener("input", updateSendBtn);
+
+// Init search page
+document.getElementById("search-main").innerHTML = `
+  <div class="search-empty">
+    <div class="search-empty-icon">⊹</div>
+    <p style="color:var(--text3);font-size:13px;letter-spacing:.1em">ENTER A QUERY TO SEARCH</p>
+    <p style="color:var(--text3);font-size:11px;margin-top:6px;font-family:Georgia,serif">Powered by live Anthropic web search</p>
+  </div>`;
+
+renderQuickTopics();
+
+// Boot
+init();
+</script>
+</body>
+</html>

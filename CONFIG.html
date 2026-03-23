@@ -1,0 +1,34 @@
+<!--
+  KAIROS CONFIGURATION
+  ═══════════════════════════════════════════════════════
+
+  HOW TO SET YOUR API KEY (choose one method):
+
+  ── METHOD 1: Netlify Environment Variable (RECOMMENDED) ─────────────────────
+  1. Go to Netlify Dashboard → Your Site → Site Settings → Environment Variables
+  2. Add variable:  KAIROS_API_KEY = sk-ant-your-key-here
+  3. Then add this snippet just before </body> in index.html:
+     <script>window.KAIROS_API_KEY = "{{ KAIROS_API_KEY }}";</script>
+  4. Redeploy
+
+  ── METHOD 2: Direct (quick local testing only) ───────────────────────────────
+  In index.html find this line:
+    const API_KEY = window.KAIROS_API_KEY || "";
+  Replace with:
+    const API_KEY = "sk-ant-your-key-here";
+
+  ⚠ NEVER commit your real API key to a public repo.
+     Use Method 1 (Netlify env vars) for production.
+
+  ── GET YOUR API KEY ──────────────────────────────────────────────────────────
+  https://console.anthropic.com/keys
+
+  ── DEPLOY STEPS ─────────────────────────────────────────────────────────────
+  1. Push this folder to a GitHub repo
+  2. Log in to netlify.com → "Add new site" → "Import from Git"
+  3. Select your repo, set build command to blank, publish dir to "/"
+  4. Add KAIROS_API_KEY env var in site settings
+  5. Click "Deploy site" — done! ✦
+
+  ═══════════════════════════════════════════════════════
+-->
